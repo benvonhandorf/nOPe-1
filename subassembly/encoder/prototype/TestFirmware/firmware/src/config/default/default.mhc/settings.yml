@@ -1,0 +1,14 @@
+configName: default
+folderName: Test2
+format_version: v1.0
+frameworkPath: ../../Harmony3
+processor: ATSAMD10D13AM
+projectName: Test2
+settings:
+  PackageFilter: csp_apps_sam_d10;quick_docs;csp
+  FORCE_OPTIMIZATION: 'false'
+  GENERATE_BACKUP: 'true'
+  TRUSTZONE: 'false'
+  CMSISPath: ./dev_packs/arm/CMSIS/5.7.0
+  MERGE_STRATEGY: USER_ALL
+  DFPPath: ./dev_packs/Microchip/SAMD10_DFP/2.5.64/atdf/ATSAMD10D13AM.atdf
