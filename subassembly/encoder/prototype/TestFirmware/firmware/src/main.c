@@ -149,10 +149,27 @@ void set_led(uint8_t position, uint8_t on) {
     }
 }
 
+volatile int8_t increment = 0;
+
+void EIC_Handler() {
+    if(EIC_REGS->EIC_INTFLAG & EIC_INTFLAG_EXTINT3(1)) {
+        //ENC_A
+        if(PORT_REGS->GROUP[0].PORT_IN & (0x01 << 10)) {
+            increment = -1;
+        } else {
+            increment = 1;
+        }
+    } else if(EIC_REGS->EIC_INTFLAG & EIC_INTFLAG_EXTINT7(1)) {
+        //ENC_SW
+        increment += 5;
+    }
+    
+    EIC_REGS->EIC_INTFLAG = EIC_INTFLAG_EXTINT3(1) | EIC_INTFLAG_EXTINT7(1);
+}
+
 int main ( void )
 {
     uint8_t led = 0;
-    uint32_t delay = 10000;
     /* Initialize all modules */
     SYS_Initialize ( NULL );
     
@@ -161,16 +178,22 @@ int main ( void )
     for(int i = 0; i < LED_COUNT; i++) {
         set_led(i, 0);
     }
-    
-    led = 11;
-    
-    phase = 2;
-    
+        
     set_led(led, 1);
     
-            next_phase();
-
-
+    EIC_REGS->EIC_CONFIG[0] =
+            EIC_CONFIG_FILTEN7(1) | EIC_CONFIG_SENSE7_FALL | //Filter and falling edge detection for EIC 7 - ENC_SW
+            EIC_CONFIG_FILTEN3(1) | EIC_CONFIG_SENSE3_FALL ; //Filter and falling edge detection for EIC 3 - ENC_A
+    
+    EIC_REGS->EIC_INTENSET = EIC_INTENSET_EXTINT3(1) |
+            EIC_INTENSET_EXTINT7(1) ;
+    
+    EIC_REGS->EIC_CTRL = EIC_CTRL_ENABLE(1);
+    
+    NVIC_EnableIRQ(EIC_IRQn);
+    
+    NVIC_INT_Enable();
+    
     while ( true )
     {
         /* Maintain state machines of all polled MPLAB Harmony modules. */
@@ -178,17 +201,24 @@ int main ( void )
         
         next_phase();
         
-        delay--;
-        
-        if(delay == 0) {
-            set_led(led, 0);
-            led++;
-            if(led >= LED_COUNT) {
-                led = 0;
-            }
-            set_led(led, 1);
+        if(increment != 0) {
+            int8_t hold = increment;
+            int8_t new_led = led + hold;
+            increment -= hold;
             
-            delay = 10000;
+            while(new_led >= LED_COUNT) {
+                new_led -= LED_COUNT;
+            }
+            
+            while(new_led < 0) {
+                new_led += LED_COUNT;
+            }
+
+            set_led(led, 0);
+            
+            led = new_led;
+            
+            set_led(led, 1);
         }
     }
 

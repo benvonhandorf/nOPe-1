@@ -120,11 +120,6 @@
 #define ENC_B_PIN                  PORT_PIN_PA10
 
 /*** Macros for ENC_A pin ***/
-#define ENC_A_Set()               (PORT_REGS->GROUP[0].PORT_OUTSET = ((uint32_t)1U << 11U))
-#define ENC_A_Clear()             (PORT_REGS->GROUP[0].PORT_OUTCLR = ((uint32_t)1U << 11U))
-#define ENC_A_Toggle()            (PORT_REGS->GROUP[0].PORT_OUTTGL = ((uint32_t)1U << 11U))
-#define ENC_A_OutputEnable()      (PORT_REGS->GROUP[0].PORT_DIRSET = ((uint32_t)1U << 11U))
-#define ENC_A_InputEnable()       (PORT_REGS->GROUP[0].PORT_DIRCLR = ((uint32_t)1U << 11U))
 #define ENC_A_Get()               (((PORT_REGS->GROUP[0].PORT_IN >> 11U)) & 0x01U)
 #define ENC_A_PIN                  PORT_PIN_PA11
 
@@ -138,11 +133,6 @@
 #define INT_OUT_PIN                  PORT_PIN_PA16
 
 /*** Macros for ENC_SW pin ***/
-#define ENC_SW_Set()               (PORT_REGS->GROUP[0].PORT_OUTSET = ((uint32_t)1U << 27U))
-#define ENC_SW_Clear()             (PORT_REGS->GROUP[0].PORT_OUTCLR = ((uint32_t)1U << 27U))
-#define ENC_SW_Toggle()            (PORT_REGS->GROUP[0].PORT_OUTTGL = ((uint32_t)1U << 27U))
-#define ENC_SW_OutputEnable()      (PORT_REGS->GROUP[0].PORT_DIRSET = ((uint32_t)1U << 27U))
-#define ENC_SW_InputEnable()       (PORT_REGS->GROUP[0].PORT_DIRCLR = ((uint32_t)1U << 27U))
 #define ENC_SW_Get()               (((PORT_REGS->GROUP[0].PORT_IN >> 27U)) & 0x01U)
 #define ENC_SW_PIN                  PORT_PIN_PA27
 
