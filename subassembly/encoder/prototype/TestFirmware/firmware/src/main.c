@@ -151,17 +151,22 @@ void set_led(uint8_t position, uint8_t on) {
 
 volatile int8_t increment = 0;
 
+volatile uint32_t increment_lockout = 0;
+
 void EIC_Handler() {
-    if(EIC_REGS->EIC_INTFLAG & EIC_INTFLAG_EXTINT3(1)) {
-        //ENC_A
-        if(PORT_REGS->GROUP[0].PORT_IN & (0x01 << 10)) {
-            increment = -1;
-        } else {
-            increment = 1;
+    if(!increment_lockout) {
+        increment_lockout = 10000;
+        if(EIC_REGS->EIC_INTFLAG & EIC_INTFLAG_EXTINT3(1)) {
+            //ENC_A
+            if(PORT_REGS->GROUP[0].PORT_IN & (0x01 << 10)) {
+                increment = -1;
+            } else {
+                increment = 1;
+            }
+        } else if(EIC_REGS->EIC_INTFLAG & EIC_INTFLAG_EXTINT7(1)) {
+            //ENC_SW
+            increment += 5;
         }
-    } else if(EIC_REGS->EIC_INTFLAG & EIC_INTFLAG_EXTINT7(1)) {
-        //ENC_SW
-        increment += 5;
     }
     
     EIC_REGS->EIC_INTFLAG = EIC_INTFLAG_EXTINT3(1) | EIC_INTFLAG_EXTINT7(1);
@@ -200,6 +205,10 @@ int main ( void )
         SYS_Tasks ( );
         
         next_phase();
+        
+        if(increment_lockout) {
+            increment_lockout--;
+        }
         
         if(increment != 0) {
             int8_t hold = increment;
