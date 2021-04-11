@@ -27,176 +27,198 @@
 #include <stdlib.h>                     // Defines EXIT_FAILURE
 #include "definitions.h"                // SYS function prototypes
 
+#include "encoder/encoder.h"
+
+#include "led_array/led_array.h"
+
 
 // *****************************************************************************
 // *****************************************************************************
 // Section: Main Entry Point
 // *****************************************************************************
 // *****************************************************************************
+#define ANIMATION_TYPES 2
 
-/*
- * A - PA02
- * B - PA03
- * C - PA06
- * D - PA05
- * E - PA04
- */
+uint8_t mode = 0;
+int8_t led_focused = 0;
+int8_t type = 0;
+int16_t speed = 1;
+uint32_t counter = 0;
+const uint8_t tail = 2;
 
-#define LED_COUNT 20
-
-#define LED_PHASES 5
-
-#define LED_A_PHASE 0
-#define LED_B_PHASE 1
-#define LED_C_PHASE 2
-#define LED_D_PHASE 3
-#define LED_E_PHASE 4
-
-#define LED_A_OFFSET 2
-#define LED_B_OFFSET 3
-#define LED_C_OFFSET 6
-#define LED_D_OFFSET 5
-#define LED_E_OFFSET 4
-
-const uint32_t LED_MASK =
-                0x01 << LED_A_OFFSET |
-                0x01 << LED_B_OFFSET |
-                0x01 << LED_C_OFFSET |
-                0x01 << LED_D_OFFSET |
-                0x01 << LED_E_OFFSET ;
-const uint32_t LED_MASK_INV = ~(  
-                0x01 << LED_A_OFFSET |
-                0x01 << LED_B_OFFSET |
-                0x01 << LED_C_OFFSET |
-                0x01 << LED_D_OFFSET |
-                0x01 << LED_E_OFFSET) ;
-
-
-uint8_t led_pins[][2] = {
-    {LED_A_PHASE, 0x01 << LED_B_OFFSET}, // D1 - Column A, Row B
-    {LED_A_PHASE, 0x01 << LED_C_OFFSET}, // D2 - Column A, Row C
-    {LED_A_PHASE, 0x01 << LED_D_OFFSET}, // D3 - Column A, Row D
-    {LED_A_PHASE, 0x01 << LED_E_OFFSET}, // D4 - Column A, Row E
-    {LED_B_PHASE, 0x01 << LED_A_OFFSET}, // D5 - Column B, Row A
-    {LED_B_PHASE, 0x01 << LED_C_OFFSET}, // D6 - Column B, Row C
-    {LED_B_PHASE, 0x01 << LED_D_OFFSET}, // D7 - Column B, Row D
-    {LED_B_PHASE, 0x01 << LED_E_OFFSET}, // D8 - Column B, Row E
-    {LED_C_PHASE, 0x01 << LED_A_OFFSET}, // D9 - Column C, Row A
-    {LED_C_PHASE, 0x01 << LED_B_OFFSET}, // D10 - Column C, Row B
-    {LED_C_PHASE, 0x01 << LED_D_OFFSET}, // D11 - Column C, Row D
-    {LED_C_PHASE, 0x01 << LED_E_OFFSET}, // D12 - Column C, Row E
-    {LED_D_PHASE, 0x01 << LED_A_OFFSET}, // D13 - Column D, Row A
-    {LED_D_PHASE, 0x01 << LED_B_OFFSET}, // D14 - Column D, Row B
-    {LED_D_PHASE, 0x01 << LED_C_OFFSET}, // D15 - Column D, Row C
-    {LED_D_PHASE, 0x01 << LED_E_OFFSET}, // D16 - Column D, Row E
-    {LED_E_PHASE, 0x01 << LED_A_OFFSET}, // D17 - Column E, Row A
-    {LED_E_PHASE, 0x01 << LED_B_OFFSET}, // D18 - Column E, Row B
-    {LED_E_PHASE, 0x01 << LED_C_OFFSET}, // D19 - Column E, Row C
-    {LED_E_PHASE, 0x01 << LED_D_OFFSET}, // D20 - Column E, Row D
-};
-
-uint8_t signals[LED_PHASES];
-uint8_t directions[LED_PHASES];
-
-uint8_t LED_PHASE_FEED[LED_PHASES] = {
-    0x01 << LED_A_OFFSET,
-    0x01 << LED_B_OFFSET,
-    0x01 << LED_C_OFFSET,
-    0x01 << LED_D_OFFSET,
-    0x01 << LED_E_OFFSET,
-};
-
-uint8_t phase = 0;
-
-port_group_registers_t *LED_PORT = &(PORT_REGS->GROUP[0]);
-
-void configure_phases() {
-    for(int i = 0; i < LED_PHASES; i++) {
-        signals[i] = LED_PHASE_FEED[i];
-        directions[i] = LED_PHASE_FEED[i];
+void process_init() {
+    for(uint8_t i = 0; i < LED_ARRAY_COUNT; i++) {
+        led_array_set_led(i, 0);
     }
     
-    //Initialize for phase 0;
-    phase = 0;
+    led_focused = 0;
     
-    LED_PORT->PORT_DIR = (LED_PORT->PORT_DIR & LED_MASK_INV) | directions[phase];
+    led_array_set_led(led_focused, 1);
 }
 
-void next_phase() {
-    LED_PORT->PORT_OUTCLR = signals[phase];
-    LED_PORT->PORT_DIRCLR = directions[phase];
+void process_switch_mode() {
+    mode = !mode;
     
-    phase++;
-    
-    if(phase >= LED_PHASES) {
-        phase = 0;
-    }
-    
-    LED_PORT->PORT_OUTSET = signals[phase];
-    LED_PORT->PORT_DIRSET = directions[phase];
-}
-
-void set_led(uint8_t position, uint8_t on) {
-    uint8_t phase = led_pins[position][0];
-    uint8_t flag = led_pins[position][1];
-    
-    if(on) {
-        //LED is turned on by sinking current as an output pin
-        directions[phase] = directions[phase] | flag;
-    } else {
-        //LED is turned off by going high impedance - Input
-        directions[phase] = directions[phase] & ~flag;
+    for(uint8_t i = 0; i < LED_ARRAY_COUNT; i++) {
+        led_array_set_led(i, 0);
     }
 }
 
-volatile int8_t increment = 0;
+void process_type_0() {
+    int32_t encoder = encoder_get_increment();
+    
+    if(encoder) {
+        speed += encoder;
+    }
+    
+    for(uint8_t i = 0; i < LED_ARRAY_COUNT; i++) {
+        led_array_set_led(i, 0);
+    }
+    
+    int8_t direction = speed > 0 ? 1 : speed < 0 ? -1 : 0;
+    
+    led_focused += direction;
+    
+    while(led_focused < 0) {
+        led_focused += LED_ARRAY_COUNT;
+    }
 
-volatile uint32_t increment_lockout = 0;
+    while(led_focused >= LED_ARRAY_COUNT) {
+        led_focused -= LED_ARRAY_COUNT;
+    }
 
-void EIC_Handler() {
-    if(!increment_lockout) {
-        increment_lockout = 10000;
-        if(EIC_REGS->EIC_INTFLAG & EIC_INTFLAG_EXTINT3(1)) {
-            //ENC_A
-            if(PORT_REGS->GROUP[0].PORT_IN & (0x01 << 10)) {
-                increment = -1;
-            } else {
-                increment = 1;
-            }
-        } else if(EIC_REGS->EIC_INTFLAG & EIC_INTFLAG_EXTINT7(1)) {
-            //ENC_SW
-            increment += 5;
+    for(int8_t i = 0; i < tail; i++) {
+        int8_t led = led_focused + (i * direction);
+        
+        while(led < 0) {
+            led += LED_ARRAY_COUNT;
+        }
+        
+        while(led >= LED_ARRAY_COUNT) {
+            led -= LED_ARRAY_COUNT;
+        }
+        
+        led_array_set_led((uint8_t) led, 1);
+    }
+}
+
+void process_type_1() {
+    int32_t encoder = encoder_get_increment();
+    
+    if(encoder) {
+        speed += encoder;
+    }
+    
+    for(uint8_t i = 0; i < LED_ARRAY_COUNT; i++) {
+        led_array_set_led(i, 0);
+    }
+    
+    int8_t direction = speed > 0 ? 1 : speed < 0 ? -1 : 0;
+    
+    led_focused += direction;
+    
+    while(led_focused < 0) {
+        led_focused += LED_ARRAY_COUNT;
+    }
+
+    while(led_focused >= LED_ARRAY_COUNT) {
+        led_focused -= LED_ARRAY_COUNT;
+    }
+
+    for(uint8_t i = 0; i < tail; i++) {
+        int8_t led = led_focused + (i * direction);
+        
+        while(led < 0) {
+            led += LED_ARRAY_COUNT;
+        }
+        
+        while(led >= LED_ARRAY_COUNT) {
+            led -= LED_ARRAY_COUNT;
+        }
+        
+        led_array_set_led((uint8_t) led, 1);
+    }
+    
+    for(uint8_t i = 0; i < tail; i++) {
+        int8_t led = led_focused - (i * direction);
+        
+        while(led < 0) {
+            led += LED_ARRAY_COUNT;
+        }
+        
+        while(led >= LED_ARRAY_COUNT) {
+            led -= LED_ARRAY_COUNT;
+        }
+        
+        led_array_set_led((uint8_t) led, 1);
+    }
+}
+
+void process_normal() {
+    counter++;
+    
+    int8_t abs_speed = speed == 0 ? 1 : speed > 0 ? speed : -speed;
+    
+    if((counter * abs_speed) >= 100000) {
+        counter = 0;
+        switch(type) {
+            case 0:
+                process_type_0();
+                break;
+            case 1:
+                process_type_1();
+                break;
+        }
+    }
+}
+
+void process_mode_adjustment() {
+    int32_t encoder = encoder_get_increment();
+    
+    if(encoder) {
+        type += encoder;
+        
+        while(type < 0) {
+            type += ANIMATION_TYPES;
+        } 
+        while(type >= ANIMATION_TYPES) {
+            type -= ANIMATION_TYPES;
         }
     }
     
-    EIC_REGS->EIC_INTFLAG = EIC_INTFLAG_EXTINT3(1) | EIC_INTFLAG_EXTINT7(1);
+    for(int i = 0; i < LED_ARRAY_COUNT; i++) {
+        led_array_set_led(i, 0);
+    }
+    
+    led_array_set_led(type, 1);
 }
+
+void process_mode() {
+    switch(mode) {
+        case 0:
+            process_normal();
+
+            break;
+        case 1:
+            process_mode_adjustment();
+
+            break;
+    }
+}
+
 
 int main ( void )
 {
-    uint8_t led = 0;
     /* Initialize all modules */
     SYS_Initialize ( NULL );
     
-    configure_phases();
+    led_array_init();
     
-    for(int i = 0; i < LED_COUNT; i++) {
-        set_led(i, 0);
-    }
+    //EIC is configured by the encoder
+    encoder_init();
+    
+    process_init();
         
-    set_led(led, 1);
-    
-    EIC_REGS->EIC_CONFIG[0] =
-            EIC_CONFIG_FILTEN7(1) | EIC_CONFIG_SENSE7_FALL | //Filter and falling edge detection for EIC 7 - ENC_SW
-            EIC_CONFIG_FILTEN3(1) | EIC_CONFIG_SENSE3_FALL ; //Filter and falling edge detection for EIC 3 - ENC_A
-    
-    EIC_REGS->EIC_INTENSET = EIC_INTENSET_EXTINT3(1) |
-            EIC_INTENSET_EXTINT7(1) ;
-    
-    EIC_REGS->EIC_CTRL = EIC_CTRL_ENABLE(1);
-    
-    NVIC_EnableIRQ(EIC_IRQn);
-    
     NVIC_INT_Enable();
     
     while ( true )
@@ -204,31 +226,17 @@ int main ( void )
         /* Maintain state machines of all polled MPLAB Harmony modules. */
         SYS_Tasks ( );
         
-        next_phase();
+        led_array_phase();
         
-        if(increment_lockout) {
-            increment_lockout--;
+        encoder_tick();
+        
+        uint8_t clicks = encoder_get_clicks();
+        
+        if(clicks) {
+            process_switch_mode();
         }
         
-        if(increment != 0) {
-            int8_t hold = increment;
-            int8_t new_led = led + hold;
-            increment -= hold;
-            
-            while(new_led >= LED_COUNT) {
-                new_led -= LED_COUNT;
-            }
-            
-            while(new_led < 0) {
-                new_led += LED_COUNT;
-            }
-
-            set_led(led, 0);
-            
-            led = new_led;
-            
-            set_led(led, 1);
-        }
+        process_mode();
     }
 
     /* Execution should not come here during normal operation */
