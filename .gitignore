@@ -28,6 +28,7 @@ funclist
 nbproject/Makefile-*
 disassembly/
 *.map
+.generated_files/
 
 # End of https://www.toptal.com/developers/gitignore/api/mplabx
 

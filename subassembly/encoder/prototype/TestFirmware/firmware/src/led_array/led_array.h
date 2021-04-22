@@ -15,7 +15,7 @@ extern "C" {
 #define LED_ARRAY_COUNT 20
 
     void led_array_init();
-    void led_array_phase();
+    void led_array_tick();
     void led_array_set_led(uint8_t position, uint8_t value);
 
 

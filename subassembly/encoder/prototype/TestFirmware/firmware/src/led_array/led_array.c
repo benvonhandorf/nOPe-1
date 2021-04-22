@@ -14,7 +14,11 @@
  * E - PA04
  */
 
+//BCM Cycles
+#define LED_CYCLES 4
+//Individual data phases
 #define LED_PHASES 5
+#define LED_CYCLE_PHASES (LED_CYCLES * LED_PHASES)
 
 #define LED_A_PHASE 0
 #define LED_B_PHASE 1
@@ -28,13 +32,14 @@
 #define LED_D_OFFSET 5
 #define LED_E_OFFSET 4
 
-const uint32_t LED_MASK =
-                0x01 << LED_A_OFFSET |
-                0x01 << LED_B_OFFSET |
-                0x01 << LED_C_OFFSET |
-                0x01 << LED_D_OFFSET |
-                0x01 << LED_E_OFFSET ;
-const uint32_t LED_MASK_INV = ~(  
+//const static uint32_t LED_MASK =
+//                0x01 << LED_A_OFFSET |
+//                0x01 << LED_B_OFFSET |
+//                0x01 << LED_C_OFFSET |
+//                0x01 << LED_D_OFFSET |
+//                0x01 << LED_E_OFFSET ;
+
+const static uint32_t LED_MASK_INV = ~(  
                 0x01 << LED_A_OFFSET |
                 0x01 << LED_B_OFFSET |
                 0x01 << LED_C_OFFSET |
@@ -42,7 +47,7 @@ const uint32_t LED_MASK_INV = ~(
                 0x01 << LED_E_OFFSET) ;
 
 
-uint8_t led_pins[LED_ARRAY_COUNT][2] = {
+const static uint8_t led_pins[LED_ARRAY_COUNT][2] = {
     {LED_A_PHASE, 0x01 << LED_B_OFFSET}, // D1 - Column A, Row B
     {LED_A_PHASE, 0x01 << LED_C_OFFSET}, // D2 - Column A, Row C
     {LED_A_PHASE, 0x01 << LED_D_OFFSET}, // D3 - Column A, Row D
@@ -65,10 +70,10 @@ uint8_t led_pins[LED_ARRAY_COUNT][2] = {
     {LED_E_PHASE, 0x01 << LED_D_OFFSET}, // D20 - Column E, Row D
 };
 
-uint8_t signals[LED_PHASES];
-uint8_t directions[LED_PHASES];
+static uint8_t signals[LED_CYCLE_PHASES];
+static uint8_t directions[LED_CYCLE_PHASES];
 
-uint8_t LED_PHASE_FEED[LED_PHASES] = {
+const static uint8_t LED_PHASE_FEED[LED_PHASES] = {
     0x01 << LED_A_OFFSET,
     0x01 << LED_B_OFFSET,
     0x01 << LED_C_OFFSET,
@@ -76,45 +81,74 @@ uint8_t LED_PHASE_FEED[LED_PHASES] = {
     0x01 << LED_E_OFFSET,
 };
 
-uint8_t phase = 0;
-
-port_group_registers_t *LED_PORT = &(PORT_REGS->GROUP[0]);
+static port_group_registers_t *LED_PORT = &(PORT_REGS->GROUP[0]);
+static uint8_t phase = 0;
+static uint8_t tick_counter = 0;
+static uint8_t cycle = 0;
 
 void led_array_init() {
-    for(int i = 0; i < LED_PHASES; i++) {
-        signals[i] = LED_PHASE_FEED[i];
-        directions[i] = LED_PHASE_FEED[i];
+    for(int i = 0; i < LED_CYCLE_PHASES; i++) {
+        signals[i] = LED_PHASE_FEED[i % LED_PHASES];
+        directions[i] = LED_PHASE_FEED[i % LED_PHASES];
     }
     
     //Initialize for phase 0;
     phase = 0;
+    cycle = 0;
+    tick_counter = 0;
     
     LED_PORT->PORT_DIR = (LED_PORT->PORT_DIR & LED_MASK_INV) | directions[phase];
 }
 
+static uint8_t cycle_ticks[LED_CYCLES] = { 1, 2, 8, 16};
+
 void led_array_phase() {
-    LED_PORT->PORT_OUTCLR = signals[phase];
-    LED_PORT->PORT_DIRCLR = directions[phase];
+    int16_t cycle_phase_offset = phase + (cycle * LED_PHASES);
+    LED_PORT->PORT_OUTCLR = signals[cycle_phase_offset];
+    LED_PORT->PORT_DIRCLR = directions[cycle_phase_offset];
     
     phase++;
     
     if(phase >= LED_PHASES) {
         phase = 0;
+        cycle++;
+        
+        if(cycle >= LED_CYCLES) {
+            cycle = 0;
+        }
     }
     
-    LED_PORT->PORT_OUTSET = signals[phase];
-    LED_PORT->PORT_DIRSET = directions[phase];
+    cycle_phase_offset = phase + (cycle * LED_PHASES);
+    
+    LED_PORT->PORT_OUTSET = signals[cycle_phase_offset];
+    LED_PORT->PORT_DIRSET = directions[cycle_phase_offset];
+}
+
+void led_array_tick() {
+    tick_counter++;
+    
+    if(tick_counter >= cycle_ticks[cycle]) {
+        led_array_phase();
+        tick_counter = 0;
+    }
 }
 
 void led_array_set_led(uint8_t position, uint8_t value) {
     uint8_t phase = led_pins[position][0];
     uint8_t flag = led_pins[position][1];
     
-    if(value) {
-        //LED is turned on by sinking current as an output pin
-        directions[phase] = directions[phase] | flag;
-    } else {
-        //LED is turned off by going high impedance / input
-        directions[phase] = directions[phase] & ~flag;
+    //Bit shift things down to deal with reduced space
+    value = value >> (8 - LED_CYCLES);
+    
+    for(int8_t i = 0 ; i < LED_CYCLES; i++) {  
+        int16_t cycle_phase_offset = phase + (i * LED_PHASES);
+        
+        if(value & 0x01 << i) {
+            //LED is turned on by sinking current as an output pin
+            directions[cycle_phase_offset] = directions[cycle_phase_offset] | flag;
+        } else {
+            //LED is turned off by going high impedance / input
+            directions[cycle_phase_offset] = directions[cycle_phase_offset] & ~flag;
+        }
     }
 }

@@ -37,7 +37,7 @@
 // Section: Main Entry Point
 // *****************************************************************************
 // *****************************************************************************
-#define ANIMATION_TYPES 2
+#define ANIMATION_TYPES 3
 
 uint8_t mode = 0;
 int8_t led_focused = 0;
@@ -53,7 +53,7 @@ void process_init() {
     
     led_focused = 0;
     
-    led_array_set_led(led_focused, 1);
+    led_array_set_led(led_focused, 0xFF);
 }
 
 void process_switch_mode() {
@@ -98,7 +98,11 @@ void process_type_0() {
             led -= LED_ARRAY_COUNT;
         }
         
-        led_array_set_led((uint8_t) led, 1);
+        if(i == 0) {
+            led_array_set_led((uint8_t) led, 255);
+        } else {
+            led_array_set_led((uint8_t) led, 127);
+        }
     }
 }
 
@@ -136,7 +140,11 @@ void process_type_1() {
             led -= LED_ARRAY_COUNT;
         }
         
-        led_array_set_led((uint8_t) led, 1);
+        if(i == 0) {
+            led_array_set_led((uint8_t) led, 255);
+        } else {
+            led_array_set_led((uint8_t) led, 127);
+        }
     }
     
     for(uint8_t i = 0; i < tail; i++) {
@@ -150,9 +158,65 @@ void process_type_1() {
             led -= LED_ARRAY_COUNT;
         }
         
-        led_array_set_led((uint8_t) led, 1);
+        if(i == 0) {
+            led_array_set_led((uint8_t) led, 255);
+        } else {
+            led_array_set_led((uint8_t) led, 127);
+        }
     }
 }
+
+int8_t led_sweep = 0;
+
+void process_type_2() {
+    int32_t encoder = encoder_get_increment();
+    
+    if(encoder) {
+        speed += encoder;
+    }
+    
+    for(uint8_t i = 0; i < LED_ARRAY_COUNT; i++) {
+        led_array_set_led(i, 0);
+    }
+    
+    int8_t direction = speed > 0 ? 1 : speed < 0 ? -1 : 0;
+    
+    led_sweep++;
+    
+    if(led_sweep >= (2 * LED_ARRAY_COUNT)
+            || led_sweep <= -(2 * LED_ARRAY_COUNT)) {
+        //After sweeping positively and then negatively, clear
+        led_focused += direction;
+        led_sweep = 0;
+    }
+    
+    while(led_focused < 0) {
+        led_focused += LED_ARRAY_COUNT;
+    }
+
+    while(led_focused >= LED_ARRAY_COUNT) {
+        led_focused -= LED_ARRAY_COUNT;
+    }
+    
+    for(uint8_t i = 0; i < led_sweep; i++) {
+        int8_t led = led_focused + (i * direction);
+        
+        while(led < 0) {
+            led += LED_ARRAY_COUNT;
+        }
+        
+        while(led >= LED_ARRAY_COUNT) {
+            led -= LED_ARRAY_COUNT;
+        }
+        if(i < LED_ARRAY_COUNT) {
+            led_array_set_led((uint8_t) led, 127);
+        } else {
+            led_array_set_led((uint8_t) led, 0);
+        }
+    }
+    
+    led_array_set_led((uint8_t) led_focused, 255);
+ }
 
 void process_normal() {
     counter++;
@@ -167,6 +231,9 @@ void process_normal() {
                 break;
             case 1:
                 process_type_1();
+                break;
+            case 2:
+                process_type_2();
                 break;
         }
     }
@@ -190,7 +257,7 @@ void process_mode_adjustment() {
         led_array_set_led(i, 0);
     }
     
-    led_array_set_led(type, 1);
+    led_array_set_led(type, 0xFF);
 }
 
 void process_mode() {
@@ -226,7 +293,7 @@ int main ( void )
         /* Maintain state machines of all polled MPLAB Harmony modules. */
         SYS_Tasks ( );
         
-        led_array_phase();
+        led_array_tick();
         
         encoder_tick();
         

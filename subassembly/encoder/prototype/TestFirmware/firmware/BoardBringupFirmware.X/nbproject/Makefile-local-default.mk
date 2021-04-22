@@ -34,5 +34,5 @@ MP_AS_DIR="/Applications/microchip/xc32/v2.50/bin"
 MP_LD_DIR="/Applications/microchip/xc32/v2.50/bin"
 MP_AR_DIR="/Applications/microchip/xc32/v2.50/bin"
 # MP_BC_DIR is not defined
-CMSIS_DIR=/Applications/microchip/mplabx/v5.45/packs/arm/CMSIS/5.4.0
 DFP_DIR=/Applications/microchip/mplabx/v5.45/packs/Microchip/SAMD10_DFP/2.4.49
+CMSIS_DIR=/Applications/microchip/mplabx/v5.45/packs/arm/CMSIS/5.4.0
