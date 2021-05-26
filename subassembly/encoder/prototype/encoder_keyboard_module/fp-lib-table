@@ -1,0 +1,6 @@
+(fp_lib_table
+  (lib (name "BVH_Switches")(type "KiCad")(uri "/home/benvh/projects/kicad-library/BVH_Switches.pretty")(options "")(descr ""))
+  (lib (name "BVH_Features")(type "KiCad")(uri "/home/benvh/projects/kicad-library/BVH_Features.pretty")(options "")(descr ""))
+  (lib (name "BVH_Connectors_Misc")(type "KiCad")(uri "/home/benvh/projects/kicad-library/BVH_Connectors_Misc.pretty")(options "")(descr ""))
+  (lib (name "BVH_Components_Misc")(type "KiCad")(uri "/home/benvh/projects/kicad-library/BVH_Components_Misc.pretty")(options "")(descr ""))
+)
