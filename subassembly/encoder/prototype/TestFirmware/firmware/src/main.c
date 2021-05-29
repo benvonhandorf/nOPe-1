@@ -281,10 +281,13 @@ static sercom_i2cs_registers_t *I2CS_PORT = (sercom_i2cs_registers_t *) SERCOM0_
 void comms_init() {
     COMMS_PORT->PORT_DIRSET  |= 1 << PIN_PA16;
     I2CS_PORT->SERCOM_CTRLA |= SERCOM_I2CM_CTRLA_MODE_I2C_SLAVE;
-    I2CS_PORT->SERCOM_ADDR = SERCOM_I2CS_ADDR_ADDR(I2C_ADDRESS) | SERCOM_I2CS_ADDR_ADDRMASK(0x7F);
+    I2CS_PORT->SERCOM_ADDR = SERCOM_I2CS_ADDR_ADDR(I2C_ADDRESS) 
+            | SERCOM_I2CS_ADDR_ADDRMASK(0x7F);
     I2CS_PORT->SERCOM_CTRLB |= SERCOM_I2CS_CTRLB_AMODE(0); //MASK mode
     I2CS_PORT->SERCOM_CTRLA |= SERCOM_I2CS_CTRLA_ENABLE(1);
-    I2CS_PORT->SERCOM_INTENSET |= SERCOM_I2CS_INTENSET_DRDY_Msk ;
+    I2CS_PORT->SERCOM_INTENSET |= SERCOM_I2CS_INTENSET_DRDY_Msk 
+            | SERCOM_I2CS_INTENSET_AMATCH_Msk
+            | SERCOM_I2CS_INTENSET_ERROR_Msk ;
 }
 
 uint8_t comms_addr = 0x00;
@@ -314,14 +317,38 @@ void comms_update(uint8_t new_clicks, int32_t encoder_data) {
     }
 }
 
-void SERCOM0_I2C_InterruptHandler() {
+void SERCOM0_Handler() {
     if(I2CS_PORT->SERCOM_INTFLAG & SERCOM_I2CS_INTENSET_DRDY_Msk ) {
-        comms_buffer[comms_buffer_offset++] = I2CS_PORT->SERCOM_DATA;
+        if(comms_state == 1) {
+            //Read operation
+            
+            //BASE + 0 - Value offset, r/w
+            //BASE + 1 - Count of clicks, r/w
+            //BASE + 3 - Illumination Type, write only
+            //BASE + 4 - Illumination Data - Up to 20 Bytes, non provided bytes will be treated as zeros, write only
+
+            switch(comms_addr - I2C_ADDRESS){
+                case 0:
+                    I2CS_PORT->SERCOM_DATA = data_value;
+                    break;
+                case 1:
+                    I2CS_PORT->SERCOM_DATA = clicks;
+                    break;
+            }
+
+            I2CS_PORT->SERCOM_CTRLB = I2CS_PORT->SERCOM_CTRLB & ~SERCOM_I2CS_CTRLB_ACKACT_Msk;
+            I2CS_PORT->SERCOM_CTRLB |= SERCOM_I2CS_CTRLB_CMD(0x03);
+            
+        } else {
+            comms_buffer[comms_buffer_offset++] = I2CS_PORT->SERCOM_DATA;
+            
+            I2CS_PORT->SERCOM_CTRLB = I2CS_PORT->SERCOM_CTRLB & ~SERCOM_I2CS_CTRLB_ACKACT_Msk;
+            I2CS_PORT->SERCOM_CTRLB |= SERCOM_I2CS_CTRLB_CMD(0x03);
+        }
     } else if(I2CS_PORT->SERCOM_INTFLAG & SERCOM_I2CS_INTENSET_AMATCH_Msk ) {
-        comms_addr = I2CS_PORT->SERCOM_DATA;
+        comms_addr = I2CS_PORT->SERCOM_DATA >> 1;
         
-        //Clear the match interrupt
-        I2CS_PORT->SERCOM_INTFLAG |= SERCOM_I2CS_INTENSET_AMATCH_Msk;
+        comms_buffer_offset = 0;
         
         if(I2CS_PORT->SERCOM_STATUS & SERCOM_I2CS_STATUS_DIR_Msk) {
             //Peripheral read operation
@@ -331,6 +358,13 @@ void SERCOM0_I2C_InterruptHandler() {
             comms_state = 2;
         }
         
+        //Clear the match interrupt
+        I2CS_PORT->SERCOM_INTFLAG |= SERCOM_I2CS_INTENSET_AMATCH_Msk;
+//        I2CS_PORT->SERCOM_CTRLB = I2CS_PORT->SERCOM_CTRLB & ~SERCOM_I2CS_CTRLB_ACKACT_Msk;
+//        I2CS_PORT->SERCOM_CTRLB |= SERCOM_I2CS_CTRLB_CMD(0x03);
+        
+    } else if(I2CS_PORT->SERCOM_INTFLAG & SERCOM_I2CS_INTENSET_ERROR_Msk) {
+        comms_state = 0xFF;
     }
 }
 
@@ -345,6 +379,8 @@ int main ( void )
     encoder_init();
     
     process_init();
+    
+    comms_init();
         
     NVIC_INT_Enable();
     

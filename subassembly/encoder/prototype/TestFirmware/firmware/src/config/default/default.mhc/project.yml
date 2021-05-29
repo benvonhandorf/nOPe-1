@@ -6,20 +6,20 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: E45D1648EFC10229D7BE94DB19221FF7
-- generatedChecksum: 4AC06860B23A203FD046EBE68FD8345F
+- generatedChecksum: 749D06D49E67FC443BFA180E5AA07E52
   logicalPath: config/default
   name: initialization.c
   physicalPath: ''
   security: NON_SECURE
   type: SOURCE
-  userChecksum: 4AC06860B23A203FD046EBE68FD8345F
-- generatedChecksum: 90C20F9965CCA99655CBEF4AE2BA7689
+  userChecksum: 749D06D49E67FC443BFA180E5AA07E52
+- generatedChecksum: 988A77B08015940911F1E145F4AC51AC
   logicalPath: config/default
   name: interrupts.c
   physicalPath: ''
   security: NON_SECURE
   type: SOURCE
-  userChecksum: 90C20F9965CCA99655CBEF4AE2BA7689
+  userChecksum: 988A77B08015940911F1E145F4AC51AC
 - generatedChecksum: 6513F2461B8F476B68CA73906086047F
   logicalPath: config/default
   name: libc_syscalls.c
@@ -34,13 +34,13 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: null
-- generatedChecksum: 7C9BF140EBFE13B983B8B0DAEDCF4549
+- generatedChecksum: F8B0C251BF0897810101815FBDA388DC
   logicalPath: config/default/peripheral/clock
   name: plib_clock.c
   physicalPath: peripheral/clock
   security: NON_SECURE
   type: SOURCE
-  userChecksum: 7C9BF140EBFE13B983B8B0DAEDCF4549
+  userChecksum: F8B0C251BF0897810101815FBDA388DC
 - generatedChecksum: C3ECDED3D6301DB0DE622293ED615D21
   logicalPath: config/default/peripheral/evsys
   name: plib_evsys.c
@@ -69,13 +69,6 @@ files:
   security: NON_SECURE
   type: SOURCE
   userChecksum: 1CD5C86F3B32853F935CCADB0486A888
-- generatedChecksum: 0C2CFB3FBB044C22B592A9C44BA799A8
-  logicalPath: config/default/peripheral/sercom/i2c_slave
-  name: plib_sercom0_i2c_slave.c
-  physicalPath: peripheral/sercom/i2c_slave
-  security: NON_SECURE
-  type: SOURCE
-  userChecksum: 0C2CFB3FBB044C22B592A9C44BA799A8
 - generatedChecksum: 2645E564BD945DAED1424FD8D7B39330
   logicalPath: config/default
   name: startup_xc32.c
@@ -195,13 +188,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: 9BF8F2ABD7D0FB35E2EE64871690C8B4
-- generatedChecksum: 94A61FAA1B26B48393073050946B9370
+- generatedChecksum: A1C80FE008094660077B7A3A1612F8A9
   logicalPath: config/default
   name: definitions.h
   physicalPath: ''
   security: NON_SECURE
   type: HEADER
-  userChecksum: 94A61FAA1B26B48393073050946B9370
+  userChecksum: A1C80FE008094660077B7A3A1612F8A9
 - generatedChecksum: 1850E0CCFC64C5A8484C7E6B4732B97B
   logicalPath: config/default
   name: device.h
@@ -300,13 +293,13 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: CFFA4C8ABCA8D1C5A3C8B4B9B03A8FCC
-- generatedChecksum: 9DE07ED706B0970C3352A9740B8AAFA5
+- generatedChecksum: BA98B47042B17F56895F9649D05A024E
   logicalPath: config/default
   name: interrupts.h
   physicalPath: ''
   security: NON_SECURE
   type: HEADER
-  userChecksum: 9DE07ED706B0970C3352A9740B8AAFA5
+  userChecksum: BA98B47042B17F56895F9649D05A024E
 - generatedChecksum: B96ADDA2C111E73B26EBA5E7B4498912
   logicalPath: packs/CMSIS/CMSIS/Core/Include
   name: mpu_armv7.h
@@ -405,20 +398,6 @@ files:
   security: NON_SECURE
   type: HEADER
   userChecksum: 8F2C638C73653D94B9BEA43773AFF9A5
-- generatedChecksum: FDB5F34BED9B91AC7CB0C7838388D166
-  logicalPath: config/default/peripheral/sercom/i2c_slave
-  name: plib_sercom0_i2c_slave.h
-  physicalPath: peripheral/sercom/i2c_slave
-  security: NON_SECURE
-  type: HEADER
-  userChecksum: FDB5F34BED9B91AC7CB0C7838388D166
-- generatedChecksum: AB6B09E58B43423389C8F195639294E8
-  logicalPath: config/default/peripheral/sercom/i2c_slave
-  name: plib_sercom_i2c_slave_common.h
-  physicalPath: peripheral/sercom/i2c_slave
-  security: NON_SECURE
-  type: HEADER
-  userChecksum: AB6B09E58B43423389C8F195639294E8
 - generatedChecksum: 9290A04982BB556F7E3CFB41FAF37CA8
   logicalPath: packs/ATSAMD10D13AM_DFP/component
   name: pm.h

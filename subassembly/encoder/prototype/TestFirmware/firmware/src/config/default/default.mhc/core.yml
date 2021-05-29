@@ -228,6 +228,20 @@ children:
       - type: Dynamic
         attributes: {id: core, value: 'false'}
   - type: Boolean
+    attributes: {id: GCLK_ID_13_CHEN}
+    children:
+    - type: Values
+      children:
+      - type: Dynamic
+        attributes: {id: core, value: 'true'}
+  - type: Integer
+    attributes: {id: GCLK_ID_13_FREQ}
+    children:
+    - type: Values
+      children:
+      - type: Dynamic
+        attributes: {id: core, value: '48000000'}
+  - type: Boolean
     attributes: {id: GCLK_ID_14_CHEN}
     children:
     - type: Values
@@ -338,21 +352,23 @@ children:
     - type: Values
       children:
       - type: Dynamic
-        attributes: {id: core, value: 'true'}
+        attributes: {id: core, value: 'false'}
+      - type: User
+        attributes: {value: 'true'}
   - type: String
     attributes: {id: NVIC_9_0_HANDLER}
     children:
     - type: Values
       children:
       - type: Dynamic
-        attributes: {id: core, value: SERCOM0_I2C_InterruptHandler}
+        attributes: {id: core, value: SERCOM0_Handler}
   - type: Boolean
     attributes: {id: NVIC_9_0_HANDLER_LOCK}
     children:
     - type: Values
       children:
       - type: Dynamic
-        attributes: {id: core, value: 'true'}
+        attributes: {id: core, value: 'false'}
   - type: Integer
     attributes: {id: OSC8M_CLOCK_FREQ}
     children:
@@ -1184,8 +1200,8 @@ children:
     children:
     - type: Values
       children:
-      - type: Dynamic
-        attributes: {id: sercom0, value: 'true'}
+      - type: User
+        attributes: {value: 'true'}
   - type: Integer
     attributes: {id: SERCOM0_CORE_CLOCK_FREQUENCY}
     children:
@@ -1194,33 +1210,26 @@ children:
       - type: Dynamic
         attributes: {id: core, value: '48000000'}
   - type: Boolean
-    attributes: {id: SERCOM0_INTERRUPT_ENABLE}
-    children:
-    - type: Values
-      children:
-      - type: Dynamic
-        attributes: {id: sercom0, value: 'true'}
-  - type: Boolean
     attributes: {id: SERCOM0_INTERRUPT_ENABLE_UPDATE}
     children:
     - type: Values
       children:
       - type: Dynamic
         attributes: {id: core, value: 'false'}
-  - type: String
-    attributes: {id: SERCOM0_INTERRUPT_HANDLER}
-    children:
-    - type: Values
-      children:
-      - type: Dynamic
-        attributes: {id: sercom0, value: SERCOM0_I2C_InterruptHandler}
   - type: Boolean
-    attributes: {id: SERCOM0_INTERRUPT_HANDLER_LOCK}
+    attributes: {id: SERCOM0_SLOW_CLOCK_ENABLE}
+    children:
+    - type: Values
+      children:
+      - type: User
+        attributes: {value: 'true'}
+  - type: Integer
+    attributes: {id: SERCOM0_SLOW_CLOCK_FREQUENCY}
     children:
     - type: Values
       children:
       - type: Dynamic
-        attributes: {id: sercom0, value: 'true'}
+        attributes: {id: core, value: '48000000'}
   - type: String
     attributes: {id: SYSTICK_PERIOD}
     children:
