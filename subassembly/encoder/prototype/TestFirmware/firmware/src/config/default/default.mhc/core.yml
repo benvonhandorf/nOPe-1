@@ -501,7 +501,7 @@ children:
     - type: Values
       children:
       - type: User
-        attributes: {value: 'True'}
+        attributes: {value: ''}
   - type: String
     attributes: {id: PIN_13_MODE}
     children:
@@ -1054,7 +1054,7 @@ children:
     - type: Values
       children:
       - type: Dynamic
-        attributes: {id: core, value: '0x2'}
+        attributes: {id: core, value: '0x0'}
   - type: String
     attributes: {id: PORT_GROUP_0_PINCFG2}
     children:
