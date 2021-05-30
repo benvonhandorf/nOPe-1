@@ -16,7 +16,7 @@ extern "C" {
     
     void comms_update(uint32_t new_clicks, int32_t encoder_data);
     
-    void comms_get_command(uint32_t *command, uint8_t *data);
+    void comms_get_command(uint8_t *command, uint8_t *data);
 
 
 

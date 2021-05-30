@@ -14,16 +14,21 @@ volatile uint32_t increment_lockout = 0;
 
 void encoder_init() {
     EIC_REGS->EIC_CONFIG[0] =
-            EIC_CONFIG_FILTEN7(1) | EIC_CONFIG_SENSE7_FALL | //Filter and falling edge detection for EIC 7 - ENC_SW
-            EIC_CONFIG_FILTEN3(1) | EIC_CONFIG_SENSE3_FALL ; //Filter and falling edge detection for EIC 3 - ENC_A
-    
+            //                        EIC_CONFIG_FILTEN7(1) | 
+            EIC_CONFIG_SENSE7_FALL | //Filter and falling edge detection for EIC 7 - ENC_SW
+            //                        EIC_CONFIG_FILTEN3(1) | 
+            EIC_CONFIG_SENSE3_FALL | EIC_CONFIG_SENSE3_RISE; //Filter and falling edge detection for EIC 3 - ENC_A
+
     EIC_REGS->EIC_INTENSET = EIC_INTENSET_EXTINT3(1) |
-            EIC_INTENSET_EXTINT7(1) ;
-    
+            EIC_INTENSET_EXTINT7(1);
+
     EIC_REGS->EIC_CTRL = EIC_CTRL_ENABLE(1);
-    
+
     NVIC_EnableIRQ(EIC_IRQn);
 }
+
+uint8_t encoder_state = 0x00;
+int8_t transition_validity[] = {0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0};
 
 void EIC_Handler() {
     if(!increment_lockout) {
@@ -41,12 +46,12 @@ void EIC_Handler() {
             clicks++;
         }
     }
-    
+
     EIC_REGS->EIC_INTFLAG = EIC_INTFLAG_EXTINT3(1) | EIC_INTFLAG_EXTINT7(1);
 }
 
 void encoder_tick() {
-    if(increment_lockout) {
+    if (increment_lockout) {
         increment_lockout--;
     }
 }
@@ -54,14 +59,14 @@ void encoder_tick() {
 int32_t encoder_get_increment() {
     int32_t result = increment;
     increment -= result;
-    
+
     return result;
 }
 
 uint8_t encoder_get_clicks() {
     uint8_t result = clicks;
     clicks -= result;
-    
+
     return result;
 }
 

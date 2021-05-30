@@ -61,9 +61,10 @@ void comms_update(uint32_t new_clicks, int32_t encoder_data) {
 //    }
 }
 
-void comms_get_command(uint32_t *command, uint8_t *data) {
+void comms_get_command(uint8_t *command, uint8_t *data) {
     *command = comms_addr;
     memcpy(data, comms_buffer, comms_buffer_size);
+    comms_addr = 0xff;
 }
 
 void SERCOM0_Handler() {
