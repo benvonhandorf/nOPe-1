@@ -15,6 +15,8 @@ Improvement thoughts before next manuf run:
     - Can't drive a useful volume level through the SMD $18\omega$ speakers at 3.3V
   - Only available on Pin 1, currently used for channel A.  
     - Could easily shift channels down one pin without significant rerouting.
+    - [X] Output channels shifted
+    - [X] ADC voltage divider pads
 - External Interrupt Controller
   - Used for encoder input, could also expose additional pins.
   - Not currently used for switch but it is on a valid pin for it.
@@ -23,8 +25,7 @@ Improvement thoughts before next manuf run:
     - Requires more pins but allows higher data rate
     - Chaining difficulties, each module requires it's on ~CS
 - Connections
-  - Some daisy-chainable connection at board edge to allow easy horizontal rows
-    - 
+  - [X] Some daisy-chainable connection at board edge to allow easy horizontal rows
 
 
 ## Pins
@@ -37,7 +38,7 @@ Improvement thoughts before next manuf run:
 Free pin 1 for ADC/DAC
 
 - 1 - 
-  - ADC 
+  - ADC - Voltage divider for I2C ID
 - 2 - LED Column A
 - 3 - LED Column B
 - 4 - LED Column C
