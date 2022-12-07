@@ -35,7 +35,7 @@ Improvement thoughts before next manuf run:
 
 #### Option 1
 
-Free pin 1 for ADC/DAC
+Free pin 1 for ADC/DAC - Selected this design and implemented
 
 - 1 - 
   - ADC - Voltage divider for I2C ID
@@ -53,12 +53,12 @@ Free pin 1 for ADC/DAC
 - 12 - I2C SCL
   - Limited options per DS
 - 13 - INT output
-- 17 - SW input
+- 17 - 
 - 19 - SWCLK
   - Limited options per DS
 - 20 - SWDIO
   - Limited options per DS
-
+    zz a
 ### HW 2021-03-27
 
 - 1 - LED Column A
@@ -80,3 +80,16 @@ Free pin 1 for ADC/DAC
   - Limited options per DS
 - 20 - SWDIO
   - Limited options per DS
+
+
+## Changelog
+
+- 2022.11.24
+  - Changed symbol to link EPAD to GND
+  - Rerouted LED busses to be more logically spaced
+- Previous
+  - Routed power, replaced L3 with a ground pour
+  - Changed pins to free up pin 1 for ADC/voltage divider
+  - Better routing
+  - Paired connectors (0.05" pin headers) on either side to allow chaining
+  - SOICbite programming header
