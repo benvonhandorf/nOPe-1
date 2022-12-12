@@ -5,20 +5,20 @@
       "Application": "Pcbnew",
       "Version": "6.0.9-8da3e8f707~117~ubuntu22.04.1"
     },
-    "CreationDate": "2022-12-08T14:13:31-05:00"
+    "CreationDate": "2022-12-08T12:56:37-05:00"
   },
   "GeneralSpecs": {
     "ProjectId": {
-      "Name": "keyboard_matrix",
-      "GUID": "6b657962-6f61-4726-945f-6d6174726978",
+      "Name": "rotary_input_board",
+      "GUID": "726f7461-7279-45f6-996e-7075745f626f",
       "Revision": "rev?"
     },
     "Size": {
-      "X": 150.1,
-      "Y": 100.1
+      "X": 39.05,
+      "Y": 39.05
     },
-    "LayerNumber": 2,
-    "BoardThickness": 1.6,
+    "LayerNumber": 4,
+    "BoardThickness": 1.59,
     "Finish": "None"
   },
   "DesignRules": [
@@ -27,54 +27,72 @@
       "PadToPad": 0.0,
       "PadToTrack": 0.0,
       "TrackToTrack": 0.2,
-      "MinLineWidth": 0.15,
+      "MinLineWidth": 0.25,
+      "TrackToRegion": 0.508,
+      "RegionToRegion": 0.508
+    },
+    {
+      "Layers": "Inner",
+      "PadToPad": 0.0,
+      "PadToTrack": 0.0,
+      "TrackToTrack": 0.2,
       "TrackToRegion": 0.508,
       "RegionToRegion": 0.508
     }
   ],
   "FilesAttributes": [
     {
-      "Path": "keyboard_matrix-F_Cu.gbr",
+      "Path": "rotary_input_board-F_Cu.gtl",
       "FileFunction": "Copper,L1,Top",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "keyboard_matrix-B_Cu.gbr",
-      "FileFunction": "Copper,L2,Bot",
+      "Path": "rotary_input_board-In1_Cu.g2",
+      "FileFunction": "Copper,L2,Inr",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "keyboard_matrix-F_Paste.gbr",
+      "Path": "rotary_input_board-In2_Cu.g3",
+      "FileFunction": "Copper,L3,Inr",
+      "FilePolarity": "Positive"
+    },
+    {
+      "Path": "rotary_input_board-B_Cu.gbl",
+      "FileFunction": "Copper,L4,Bot",
+      "FilePolarity": "Positive"
+    },
+    {
+      "Path": "rotary_input_board-F_Paste.gtp",
       "FileFunction": "SolderPaste,Top",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "keyboard_matrix-B_Paste.gbr",
+      "Path": "rotary_input_board-B_Paste.gbp",
       "FileFunction": "SolderPaste,Bot",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "keyboard_matrix-F_Silkscreen.gbr",
+      "Path": "rotary_input_board-F_Silkscreen.gto",
       "FileFunction": "Legend,Top",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "keyboard_matrix-B_Silkscreen.gbr",
+      "Path": "rotary_input_board-B_Silkscreen.gbo",
       "FileFunction": "Legend,Bot",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "keyboard_matrix-F_Mask.gbr",
+      "Path": "rotary_input_board-F_Mask.gts",
       "FileFunction": "SolderMask,Top",
       "FilePolarity": "Negative"
     },
     {
-      "Path": "keyboard_matrix-B_Mask.gbr",
+      "Path": "rotary_input_board-B_Mask.gbs",
       "FileFunction": "SolderMask,Bot",
       "FilePolarity": "Negative"
     },
     {
-      "Path": "keyboard_matrix-Edge_Cuts.gbr",
+      "Path": "rotary_input_board-Edge_Cuts.gm1",
       "FileFunction": "Profile",
       "FilePolarity": "Positive"
     }
@@ -90,6 +108,7 @@
     },
     {
       "Type": "SolderMask",
+      "Color": "Green",
       "Thickness": 0.01,
       "Name": "Top Solder Mask"
     },
@@ -100,10 +119,34 @@
     },
     {
       "Type": "Dielectric",
-      "Thickness": 1.51,
+      "Thickness": 0.2,
       "Material": "FR4",
-      "Name": "F.Cu/B.Cu",
-      "Notes": "Type: dielectric layer 1 (from F.Cu to B.Cu)"
+      "Name": "F.Cu/In1.Cu",
+      "Notes": "Type: dielectric layer 1 (from F.Cu to In1.Cu)"
+    },
+    {
+      "Type": "Copper",
+      "Thickness": 0.0175,
+      "Name": "In1.Cu"
+    },
+    {
+      "Type": "Dielectric",
+      "Thickness": 1.065,
+      "Material": "FR4",
+      "Name": "In1.Cu/In2.Cu",
+      "Notes": "Type: dielectric layer 2 (from In1.Cu to In2.Cu)"
+    },
+    {
+      "Type": "Copper",
+      "Thickness": 0.0175,
+      "Name": "In2.Cu"
+    },
+    {
+      "Type": "Dielectric",
+      "Thickness": 0.2,
+      "Material": "FR4",
+      "Name": "In2.Cu/B.Cu",
+      "Notes": "Type: dielectric layer 3 (from In2.Cu to B.Cu)"
     },
     {
       "Type": "Copper",
@@ -112,6 +155,7 @@
     },
     {
       "Type": "SolderMask",
+      "Color": "Green",
       "Thickness": 0.01,
       "Name": "Bottom Solder Mask"
     },
