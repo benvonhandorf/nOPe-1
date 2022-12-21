@@ -12,6 +12,15 @@ volatile int8_t increment = 0;
 
 volatile uint32_t increment_lockout = 0;
 
+/*
+ * Prototype Board:
+ * A - PA10
+ * B - PA07
+ * RIB v1:
+ * A - PA11
+ * B - PA10
+ */
+
 void encoder_init() {
     EIC_REGS->EIC_CONFIG[0] =
             //                        EIC_CONFIG_FILTEN7(1) | 

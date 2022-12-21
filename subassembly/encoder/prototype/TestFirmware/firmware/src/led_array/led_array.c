@@ -7,17 +7,29 @@
 #include "led_array.h"
 
 /*
+ * Prototype Board:
  * A - PA02
  * B - PA03
  * C - PA06
  * D - PA05
  * E - PA04
+ * RIB v1:
+ * A - PA03
+ * B - PA04
+ * C - PA07
+ * D - PA06
+ * E - PA05
  */
 
-//BCM Cycles
+//BCM Cycles - How many brightness levels do we support?
 #define LED_CYCLES 4
-//Individual data phases
+//How many ticks do we want each cycle to last?  Allows for PWMing.
+static uint8_t cycle_ticks[LED_CYCLES] = { 1, 2, 8, 16};
+
+//Individual data phases - Repeated for each cycle.  Each phase
+//is one driven pin and 0-n pins low
 #define LED_PHASES 5
+
 #define LED_CYCLE_PHASES (LED_CYCLES * LED_PHASES)
 
 #define LED_A_PHASE 0
@@ -26,6 +38,7 @@
 #define LED_D_PHASE 3
 #define LED_E_PHASE 4
 
+// Indicates port offset
 #define LED_A_OFFSET 2
 #define LED_B_OFFSET 3
 #define LED_C_OFFSET 6
@@ -70,9 +83,12 @@ const static uint8_t led_pins[LED_ARRAY_COUNT][2] = {
     {LED_E_PHASE, 0x01 << LED_D_OFFSET}, // D20 - Column E, Row D
 };
 
+// Used to assign OUTCLR in each cycle phase.
 static uint8_t signals[LED_CYCLE_PHASES];
+// Used to assign PORT_DIR in each cycle phase.
 static uint8_t directions[LED_CYCLE_PHASES];
 
+// In each cycle, 
 const static uint8_t LED_PHASE_FEED[LED_PHASES] = {
     0x01 << LED_A_OFFSET,
     0x01 << LED_B_OFFSET,
@@ -99,8 +115,6 @@ void led_array_init() {
     
     LED_PORT->PORT_DIR = (LED_PORT->PORT_DIR & LED_MASK_INV) | directions[phase];
 }
-
-static uint8_t cycle_ticks[LED_CYCLES] = { 1, 2, 8, 16};
 
 void led_array_phase() {
     int16_t cycle_phase_offset = phase + (cycle * LED_PHASES);
