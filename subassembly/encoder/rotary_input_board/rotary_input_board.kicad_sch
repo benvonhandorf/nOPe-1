@@ -1604,6 +1604,11 @@
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid 48d232ea-3927-471f-96d5-cdd394978db4)
   )
+  (text "Resistor Values:\nBlue: 3.2V - 5 ohm\nRed: 2.0V - 65 ohm\nGreen: 2.0V - 65 ohm"
+    (at 171.45 45.085 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid 5bf8527d-197b-4ae3-8760-a4472da0756b)
+  )
   (text "Voltage divider to ADC to allow\nI2C address configuration at boot."
     (at 104.775 150.495 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
