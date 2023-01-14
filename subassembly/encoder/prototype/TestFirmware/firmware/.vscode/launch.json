@@ -1,0 +1,22 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "cwd": "${workspaceRoot}",
+            "executable": "./build/encoder-prototype-firmware.elf",
+            "name": "Debug (JLink)",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "jlink",
+            "device": "ATSAMD10D13AM",
+            "interface": "swd",
+            "serialNumber": "", // add J-Link serial number if having multiple attached the same time.
+            "runToEntryPoint": "main",
+            "svdFile": "${workspaceRoot}/device/ATSAMD10D13AM.svd",
+            "showDevDebugOutput": "raw"
+        }
+    ]
+}

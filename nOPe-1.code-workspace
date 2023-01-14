@@ -1,11 +1,12 @@
 {
 	"folders": [
 		{
-			"path": "."
-		},
-		{
-			"path": "../kicad-library"
+			"path": "subassembly/encoder/prototype/TestFirmware/firmware"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"cortex-debug.armToolchainPath": "/home/benvh/tools/gcc-arm-none-eabi-10.3-2021.10/bin",
+		"cortex-debug.armToolchainPrefix": "arm-none-eabi",
+		"cortex-debug.JLinkGDBServerPath": "/usr/bin/JLinkGDBServer"
+	}
 }

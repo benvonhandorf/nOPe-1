@@ -60,7 +60,7 @@
 // *****************************************************************************
 // *****************************************************************************
 
-extern uint32_t _stack;
+extern uint32_t _sstack;
 extern const H3DeviceVectors exception_table;
 
 extern void Dummy_Handler(void);
@@ -103,7 +103,7 @@ __attribute__ ((section(".vectors")))
 const H3DeviceVectors exception_table=
 {
     /* Configure Initial Stack Pointer, using linker-generated symbols */
-    .pvStack = &_stack,
+    .pvStack = &_sstack,
 
     .pfnReset_Handler              = Reset_Handler,
     .pfnNonMaskableInt_Handler     = NonMaskableInt_Handler,
