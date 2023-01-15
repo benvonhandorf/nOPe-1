@@ -21,9 +21,11 @@
  * E - PA05
  */
 
+
+
 //BCM Cycles - How many brightness levels do we support?
 #define LED_CYCLES 4
-//How many ticks do we want each cycle to last?  Allows for PWMing.
+//How many ticks do we want each cycle to last?  Allows for brightness control.
 static uint8_t cycle_ticks[LED_CYCLES] = { 1, 2, 8, 16};
 
 //Individual data phases - Repeated for each cycle.  Each phase
@@ -103,9 +105,9 @@ static uint8_t tick_counter = 0;
 static uint8_t cycle = 0;
 
 void led_array_init() {
-    for(int i = 0; i < LED_CYCLE_PHASES; i++) {
-        signals[i] = LED_PHASE_FEED[i % LED_PHASES];
-        directions[i] = LED_PHASE_FEED[i % LED_PHASES];
+    for(int cycle_phase = 0; cycle_phase < LED_CYCLE_PHASES; cycle_phase++) {
+        signals[cycle_phase] = LED_PHASE_FEED[cycle_phase % LED_PHASES];
+        directions[cycle_phase] = LED_PHASE_FEED[cycle_phase % LED_PHASES];
     }
     
     //Initialize for phase 0;
@@ -154,10 +156,11 @@ void led_array_set_led(uint8_t position, uint8_t value) {
     //Bit shift things down to deal with reduced space
     value = value >> (8 - LED_CYCLES);
     
-    for(int8_t i = 0 ; i < LED_CYCLES; i++) {  
-        int16_t cycle_phase_offset = phase + (i * LED_PHASES);
+    for(int8_t cycle_counter = 0 ; cycle_counter < LED_CYCLES; cycle_counter++) {  
+        int16_t cycle_phase_offset = phase + (cycle_counter * LED_PHASES);
         
-        if(value & 0x01 << i) {
+        //Check the LED `value` against the cycle counter.
+        if(value & (0x01 << cycle_counter)) {
             //LED is turned on by sinking current as an output pin
             directions[cycle_phase_offset] = directions[cycle_phase_offset] | flag;
         } else {

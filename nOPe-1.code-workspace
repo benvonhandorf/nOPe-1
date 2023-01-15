@@ -2,11 +2,20 @@
 	"folders": [
 		{
 			"path": "subassembly/encoder/prototype/TestFirmware/firmware"
+		},
+		{
+			"path": "../oldnope/nOPe-1/subassembly/encoder/prototype/TestFirmware"
 		}
 	],
 	"settings": {
 		"cortex-debug.armToolchainPath": "/home/benvh/tools/gcc-arm-none-eabi-10.3-2021.10/bin",
 		"cortex-debug.armToolchainPrefix": "arm-none-eabi",
-		"cortex-debug.JLinkGDBServerPath": "/usr/bin/JLinkGDBServer"
+		"cortex-debug.JLinkGDBServerPath": "/usr/bin/JLinkGDBServer",
+		"files.associations": {
+			"led_array.h": "c",
+			"stdbool.h": "c",
+			"device.h": "c"
+		},
+		"cortex-debug.variableUseNaturalFormat": true
 	}
 }

@@ -18,10 +18,14 @@ int16_t speed = 1;
 uint32_t counter = 0;
 const uint8_t tail = 2;
 
-void process_init() {
-    for (uint8_t i = 0; i < LED_ARRAY_COUNT; i++) {
-        led_array_set_led(i, 0);
+void clear_leds() {
+    for (uint8_t led_counter = 0; led_counter < LED_ARRAY_COUNT; led_counter++) {
+        led_array_set_led(led_counter, 0);
     }
+}
+
+void process_init() {
+    clear_leds();
 
     led_focused = 0;
 
@@ -31,9 +35,7 @@ void process_init() {
 void process_switch_mode() {
     mode = !mode;
 
-    for (uint8_t i = 0; i < LED_ARRAY_COUNT; i++) {
-        led_array_set_led(i, 0);
-    }
+    clear_leds();
 }
 
 void process_type_0(int32_t encoder_data) {
@@ -42,9 +44,7 @@ void process_type_0(int32_t encoder_data) {
         speed += encoder_data;
     }
 
-    for (uint8_t i = 0; i < LED_ARRAY_COUNT; i++) {
-        led_array_set_led(i, 0);
-    }
+    clear_leds();
 
     int8_t direction = speed > 0 ? 1 : speed < 0 ? -1 : 0;
 
@@ -82,9 +82,7 @@ void process_type_1(int32_t encoder_data) {
         speed += encoder_data;
     }
 
-    for (uint8_t i = 0; i < LED_ARRAY_COUNT; i++) {
-        led_array_set_led(i, 0);
-    }
+    clear_leds();
 
     int8_t direction = speed > 0 ? 1 : speed < 0 ? -1 : 0;
 
@@ -142,9 +140,7 @@ void process_type_2(int32_t encoder_data) {
         speed += encoder_data;
     }
 
-    for (uint8_t i = 0; i < LED_ARRAY_COUNT; i++) {
-        led_array_set_led(i, 0);
-    }
+    clear_leds();
 
     int8_t direction = speed > 0 ? 1 : speed < 0 ? -1 : 0;
 

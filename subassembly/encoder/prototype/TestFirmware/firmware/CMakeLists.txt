@@ -8,8 +8,10 @@ set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/arm-none-eabi-gcc.cmake)
 
 # Setup project, output and linker file
 project(encoder-prototype-firmware)
-set(EXECUTABLE ${PROJECT_NAME}.elf)
+set(TARGET_NAME ${PROJECT_NAME}.elf)
+
 set(LINKER_FILE ${CMAKE_SOURCE_DIR}/device/ATSAMD10D13AM.ld)
+
 
 enable_language(C ASM)
 set(CMAKE_C_STANDARD 99)
@@ -37,16 +39,18 @@ set(SRC_FILES
         )
 
 # Build the executable based on the source files
-add_executable(${EXECUTABLE} ${SRC_FILES})
+add_executable(${TARGET_NAME} ${SRC_FILES})
+
+set_target_properties(${TARGET_NAME} PROPERTIES LINK_DEPENDS ${LINKER_FILE})
 
 # List of compiler defines, prefix with -D compiler option
-target_compile_definitions(${EXECUTABLE} PRIVATE
+target_compile_definitions(${TARGET_NAME} PRIVATE
         )
 
 
 
 # List of include directories
-target_include_directories(${EXECUTABLE} PRIVATE
+target_include_directories(${TARGET_NAME} PRIVATE
         src 
         device
         src/packs/CMSIS/CMSIS/Core/Include
@@ -59,7 +63,7 @@ target_include_directories(${EXECUTABLE} PRIVATE
         )
 
 # Compiler options
-target_compile_options(${EXECUTABLE} PRIVATE
+target_compile_options(${TARGET_NAME} PRIVATE
         -mcpu=cortex-m0plus
         -mthumb
 
@@ -73,7 +77,7 @@ target_compile_options(${EXECUTABLE} PRIVATE
 
 # Linker options
 
-target_link_options(${EXECUTABLE} PRIVATE
+target_link_options(${TARGET_NAME} PRIVATE
         -T${LINKER_FILE}
         -mcpu=cortex-m0plus
         -mthumb
@@ -86,13 +90,13 @@ target_link_options(${EXECUTABLE} PRIVATE
         )
 
 # Optional: Print executable size as part of the post build process
-add_custom_command(TARGET ${EXECUTABLE}
+add_custom_command(TARGET ${TARGET_NAME}
         POST_BUILD
-        COMMAND ${CMAKE_SIZE_UTIL} ${EXECUTABLE})
+        COMMAND ${CMAKE_SIZE_UTIL} ${TARGET_NAME})
 
 # Optional: Create hex, bin and S-Record files after the build
-add_custom_command(TARGET ${EXECUTABLE}
+add_custom_command(TARGET ${TARGET_NAME}
         POST_BUILD
-        COMMAND ${CMAKE_OBJCOPY} -O srec --srec-len=64 ${EXECUTABLE} ${PROJECT_NAME}.s19
-        COMMAND ${CMAKE_OBJCOPY} -O ihex ${EXECUTABLE} ${PROJECT_NAME}.hex
-        COMMAND ${CMAKE_OBJCOPY} -O binary ${EXECUTABLE} ${PROJECT_NAME}.bin)
+        COMMAND ${CMAKE_OBJCOPY} -O srec --srec-len=64 ${TARGET_NAME} ${PROJECT_NAME}.s19
+        COMMAND ${CMAKE_OBJCOPY} -O ihex ${TARGET_NAME} ${PROJECT_NAME}.hex
+        COMMAND ${CMAKE_OBJCOPY} -O binary ${TARGET_NAME} ${PROJECT_NAME}.bin)

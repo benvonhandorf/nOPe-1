@@ -15,8 +15,7 @@
             "interface": "swd",
             "serialNumber": "", // add J-Link serial number if having multiple attached the same time.
             "runToEntryPoint": "main",
-            "svdFile": "${workspaceRoot}/device/ATSAMD10D13AM.svd",
-            "showDevDebugOutput": "raw"
+            "svdFile": "${workspaceRoot}/device/ATSAMD10D13AM.svd"
         }
     ]
 }
