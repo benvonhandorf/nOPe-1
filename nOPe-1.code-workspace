@@ -2,9 +2,6 @@
 	"folders": [
 		{
 			"path": "subassembly/encoder/prototype/TestFirmware/firmware"
-		},
-		{
-			"path": "../oldnope/nOPe-1/subassembly/encoder/prototype/TestFirmware"
 		}
 	],
 	"settings": {
