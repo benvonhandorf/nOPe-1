@@ -29,7 +29,7 @@
 static uint8_t cycle_ticks[LED_CYCLES] = { 1, 2, 8, 16};
 
 //Individual data phases - Repeated for each cycle.  Each phase
-//is one driven pin and 0-n pins low
+//is one driven pin and 0-n pins low.
 #define LED_PHASES 5
 
 #define LED_CYCLE_PHASES (LED_CYCLES * LED_PHASES)
@@ -40,7 +40,7 @@ static uint8_t cycle_ticks[LED_CYCLES] = { 1, 2, 8, 16};
 #define LED_D_PHASE 3
 #define LED_E_PHASE 4
 
-// Indicates port offset
+// Indicates port offset - Pin within port.  All pins must be in the same port register.
 #define LED_A_OFFSET 2
 #define LED_B_OFFSET 3
 #define LED_C_OFFSET 6
@@ -54,6 +54,7 @@ static uint8_t cycle_ticks[LED_CYCLES] = { 1, 2, 8, 16};
 //                0x01 << LED_D_OFFSET |
 //                0x01 << LED_E_OFFSET ;
 
+//Mask for all LED pins to ensure we don't interfere with other pins.
 const static uint32_t LED_MASK_INV = ~(  
                 0x01 << LED_A_OFFSET |
                 0x01 << LED_B_OFFSET |
@@ -89,6 +90,7 @@ const static uint8_t led_pins[LED_ARRAY_COUNT][2] = {
 static uint8_t signals[LED_CYCLE_PHASES];
 // Used to assign PORT_DIR in each cycle phase.
 static uint8_t directions[LED_CYCLE_PHASES];
+static uint8_t directions_buffer[LED_CYCLE_PHASES];
 
 // In each cycle, 
 const static uint8_t LED_PHASE_FEED[LED_PHASES] = {
@@ -104,11 +106,17 @@ static uint8_t phase = 0;
 static uint8_t tick_counter = 0;
 static uint8_t cycle = 0;
 
+static void led_array_commit() {
+    memcpy(directions_buffer, directions, LED_CYCLE_PHASES);
+}
+
 void led_array_init() {
     for(int cycle_phase = 0; cycle_phase < LED_CYCLE_PHASES; cycle_phase++) {
         signals[cycle_phase] = LED_PHASE_FEED[cycle_phase % LED_PHASES];
         directions[cycle_phase] = LED_PHASE_FEED[cycle_phase % LED_PHASES];
     }
+
+    led_array_commit();
     
     //Initialize for phase 0;
     phase = 0;
@@ -116,12 +124,15 @@ void led_array_init() {
     tick_counter = 0;
     
     LED_PORT->PORT_DIR = (LED_PORT->PORT_DIR & LED_MASK_INV) | directions[phase];
+    // LED_PORT->PORT_PINCFG = (LED_PORT->PORT_DIR & LED_MASK_INV) | directions[phase];
 }
 
 void led_array_phase() {
     int16_t cycle_phase_offset = phase + (cycle * LED_PHASES);
+
+    //Clear the pins for the cycle phase that is ending
     LED_PORT->PORT_OUTCLR = signals[cycle_phase_offset];
-    LED_PORT->PORT_DIRCLR = directions[cycle_phase_offset];
+    LED_PORT->PORT_DIRCLR = directions_buffer[cycle_phase_offset];
     
     phase++;
     
@@ -131,13 +142,20 @@ void led_array_phase() {
         
         if(cycle >= LED_CYCLES) {
             cycle = 0;
+
+            if(phase == 0) {
+                //We're about to start an entirely new round of phases and cycles.  Commit any pending changes
+                led_array_commit();
+            }
         }
     }
     
     cycle_phase_offset = phase + (cycle * LED_PHASES);
     
+    //Set the pins for the cycle phase that is starting now.
+    //Use the buffered directions and change only on the start of a new round.
     LED_PORT->PORT_OUTSET = signals[cycle_phase_offset];
-    LED_PORT->PORT_DIRSET = directions[cycle_phase_offset];
+    LED_PORT->PORT_DIRSET = directions_buffer[cycle_phase_offset];
 }
 
 void led_array_tick() {
@@ -150,10 +168,10 @@ void led_array_tick() {
 }
 
 void led_array_set_led(uint8_t position, uint8_t value) {
-    uint8_t phase = led_pins[position][0];
-    uint8_t flag = led_pins[position][1];
+    uint8_t phase = led_pins[position][0]; //Phase/SRC used for this LED.
+    uint8_t flag = led_pins[position][1]; //Bitmask for the SINK used for this LED.
     
-    //Bit shift things down to deal with reduced space
+    //Bit shift things down to deal with reduced space determined by number of cycles.
     value = value >> (8 - LED_CYCLES);
     
     for(int8_t cycle_counter = 0 ; cycle_counter < LED_CYCLES; cycle_counter++) {  

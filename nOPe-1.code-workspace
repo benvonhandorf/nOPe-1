@@ -13,6 +13,6 @@
 			"stdbool.h": "c",
 			"device.h": "c"
 		},
-		"cortex-debug.variableUseNaturalFormat": true
+		"cortex-debug.variableUseNaturalFormat": false
 	}
 }

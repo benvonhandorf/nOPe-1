@@ -11,12 +11,12 @@
 
 #define ANIMATION_TYPES 3
 
-uint8_t mode = 0;
-int8_t led_focused = 0;
-int8_t type = 0;
-int16_t speed = 1;
-uint32_t counter = 0;
-const uint8_t tail = 2;
+static uint8_t mode = 0;
+static int8_t led_focused = 0;
+static int8_t type = 0;
+static int16_t speed = 1;
+static uint32_t counter = 0;
+static const uint8_t tail = 2;
 
 void clear_leds() {
     for (uint8_t led_counter = 0; led_counter < LED_ARRAY_COUNT; led_counter++) {
@@ -38,6 +38,7 @@ void process_switch_mode() {
     clear_leds();
 }
 
+//Simple chasing lights with a tail of lower illuminated LEDs behind the focused LED.
 void process_type_0(int32_t encoder_data) {
 
     if (encoder_data) {
@@ -58,7 +59,7 @@ void process_type_0(int32_t encoder_data) {
         led_focused -= LED_ARRAY_COUNT;
     }
 
-    for (int8_t i = 0; i < tail; i++) {
+    for (int8_t i = 0; i <= tail; i++) {
         int8_t led = led_focused + (i * direction);
 
         while (led < 0) {
@@ -248,8 +249,8 @@ void controller_init() {
     comms_init();
 }
 
-uint8_t command;
-uint8_t command_buffer[20];
+static uint8_t command;
+static uint8_t command_buffer[20];
 
 void controller_tick() {
     led_array_tick();
