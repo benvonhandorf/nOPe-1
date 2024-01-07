@@ -38,14 +38,9 @@ use synth_engine::SynthEngine;
 
 use illuminator::IlluminationEngine;
 
-use comms::BusStatus;
-
-use rtt_target::{ rtt_init_print, rprintln };
-
 #[entry]
 fn main() -> ! {
-    // rtt_init_print!();
-
+    //Initial hardware configuration
     let mut peripherals = Peripherals::take().unwrap();
     let mut core = CorePeripherals::take().unwrap();
     let mut clocks = GenericClockController::with_internal_32kosc(
@@ -111,6 +106,7 @@ fn main() -> ! {
     let mut communication_register : u8 = 0x00;
 
     loop {
+        //Process protocol commands
         let command = interrupt_helpers::free(|cs| {
             if let Some(comms_status) = i2c_peripheral::BUS_STATUS.borrow(cs).borrow_mut().as_mut() {
                 comms_status.process()
@@ -134,6 +130,7 @@ fn main() -> ! {
 
         illumination_engine.render();
 
+        //Update protocol response
         if let Some((register_data, data_size)) = protocol::build_response(communication_register, &synth_engine, &illumination_engine) {
             interrupt_helpers::free(|cs| {
                 if let Some(comms_status) = i2c_peripheral::BUS_STATUS.borrow(cs).borrow_mut().as_mut() {

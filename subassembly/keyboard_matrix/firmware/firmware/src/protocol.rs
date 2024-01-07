@@ -1,10 +1,8 @@
-use keyboard_matrix::KeyboardMatrix;
 use synth_engine::SynthEngine;
 
 use illuminator::IlluminationEngine;
 
 use comms::BusCommand;
-use comms::BusStatus;
 
 use smart_leds::SmartLedsWrite;
 use smart_leds::RGB8;
