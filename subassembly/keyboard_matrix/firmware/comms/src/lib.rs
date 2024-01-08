@@ -64,7 +64,6 @@ impl BusStatus {
     }
 
     pub fn read_data(&mut self) -> u8 {
-        //TODO: Decide what to do here.  If the central is reading data we need to return something.
         if self.data_index < self.data_size {
             let result = self.data[self.data_index];
             self.data_index += 1;
@@ -98,6 +97,10 @@ impl BusStatus {
         self.command = None;
 
         result
+    }
+
+    pub fn can_provide_data(&self) -> bool {
+        self.stopped
     }
 
     pub fn provide_data(&mut self, register: u8, data: &[u8; 20], data_size: usize) {

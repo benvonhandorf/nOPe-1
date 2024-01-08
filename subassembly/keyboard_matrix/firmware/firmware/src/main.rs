@@ -1,8 +1,8 @@
 #![no_std]
 #![no_main]
 
-mod kib_board;
 mod i2c_peripheral;
+mod kib_board;
 mod protocol;
 
 use core::borrow::Borrow;
@@ -26,10 +26,10 @@ use pac::{CorePeripherals, Peripherals};
 use hal::clock::GenericClockController;
 use hal::delay::Delay;
 use hal::prelude::*;
-use hal::time::*;
-use hal::timer::*;
 use hal::sercom::i2c;
 use hal::sercom::Sercom;
+use hal::time::*;
+use hal::timer::*;
 
 use ws2812_timer_delay as ws2812;
 
@@ -101,14 +101,15 @@ fn main() -> ! {
 
     let mut illumination_engine = IlluminationEngine::new(&mut led_strand);
 
-    let delta_t_ms = 1;
+    let delta_t_ms = 2;
 
-    let mut communication_register : u8 = 0x00;
+    let mut communication_register: u8 = 0x00;
 
     loop {
         //Process protocol commands
         let command = interrupt_helpers::free(|cs| {
-            if let Some(comms_status) = i2c_peripheral::BUS_STATUS.borrow(cs).borrow_mut().as_mut() {
+            if let Some(comms_status) = i2c_peripheral::BUS_STATUS.borrow(cs).borrow_mut().as_mut()
+            {
                 comms_status.process()
             } else {
                 None
@@ -131,10 +132,17 @@ fn main() -> ! {
         illumination_engine.render();
 
         //Update protocol response
-        if let Some((register_data, data_size)) = protocol::build_response(communication_register, &synth_engine, &illumination_engine) {
+        //Note that this should be imdepotent.  If not, should check `can_provide_data` first.
+        if let Some((register_data, data_size)) =
+            protocol::build_response(communication_register, &synth_engine, &illumination_engine)
+        {
             interrupt_helpers::free(|cs| {
-                if let Some(comms_status) = i2c_peripheral::BUS_STATUS.borrow(cs).borrow_mut().as_mut() {
-                    comms_status.provide_data(communication_register, &register_data, data_size)
+                if let Some(comms_status) =
+                    i2c_peripheral::BUS_STATUS.borrow(cs).borrow_mut().as_mut()
+                {
+                    if comms_status.can_provide_data() {
+                        comms_status.provide_data(communication_register, &register_data, data_size);
+                    }
                 }
             });
         }

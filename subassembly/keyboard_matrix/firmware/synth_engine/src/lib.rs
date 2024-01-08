@@ -132,9 +132,8 @@ impl SynthState {
     }
 
     #[inline(never)]
-    pub fn note_index_to_midi(&self, note_index: u8) -> u8 {
-        let octave_offset = (self.octave + 1) * 12;
-        let midi_note = MIDI_NOTE_OFFSET + octave_offset + note_index;
+    pub fn note_index_to_midi(note_index: u8) -> u8 {
+        let midi_note = MIDI_NOTE_OFFSET + note_index;
 
         midi_note
     }
@@ -182,6 +181,22 @@ impl SynthEngine {
     pub fn set_octave(&mut self, octave: u8) {
         self.state.octave = octave;
         self.state.dirty = true;
+    }
+
+    pub fn get_octave_notes(&self) -> (u8, [u8 ; 13]) {
+        let mut notes: [u8; 13] = [0; 13];
+
+        for ocatave_note in 0..13 {
+            let note_index = SynthState::octave_note_offset_to_note_index(self.state.octave, ocatave_note);
+
+            notes[ocatave_note as usize] = if self.state.note_index_state[note_index as usize].is_active() {
+                SynthState::note_index_to_midi(note_index)
+            } else {
+                0
+            }
+        }
+
+        (self.state.octave, notes)
     }
 
     pub fn update(&mut self, keyboard_state: &KeyboardState) {
@@ -288,7 +303,7 @@ mod test {
     }
 
     #[test]
-    fn update_with_no_key_pressed_shows_pressed() {
+    fn update_with_state_but_no_key_pressed_shows_pressed() {
         let mut synth_engine = SynthEngine::new();
         let mut keyboard_state = keyboard_matrix::KeyboardState::default();
 
@@ -400,4 +415,111 @@ mod test {
 
         assert_eq!(result.to_int(), crate::NoteState::Off.to_int(), "Expected Sustain to deactivate to Off");
     }
+
+    #[test]
+    fn note_index_to_midi_note_returns_C1_for_first_note_octave_1() {
+        let mut synth_engine = SynthEngine::new();
+
+        let midi_note = SynthState::note_index_to_midi(0);
+
+        assert_eq!(midi_note, 24);
+    }
+
+    #[test]
+    fn note_index_to_midi_note_returns_C4_for_first_note_octave_4() {
+        let mut synth_engine = SynthEngine::new();
+
+        synth_engine.set_octave(4);
+
+        let midi_note = SynthState::note_index_to_midi(36);
+
+        assert_eq!(midi_note, 60);
+    }
+
+    #[test]
+    fn index_to_note_index_returns_0_for_C1() {
+        let mut synth_engine = SynthEngine::new();
+        let mut keyboard_state = keyboard_matrix::KeyboardState::default();
+
+        synth_engine.set_octave(1);
+
+        let note_index = synth_engine.state.index_to_note_index(13);
+
+        assert_eq!(note_index, 0);
+    }
+
+    #[test]
+    fn index_to_note_index_returns_36_for_C4() {
+        let mut synth_engine = SynthEngine::new();
+        let mut keyboard_state = keyboard_matrix::KeyboardState::default();
+
+        synth_engine.set_octave(4);
+
+        let note_index = synth_engine.state.index_to_note_index(0);
+
+        assert_eq!(note_index, 36);
+    }
+
+    #[test]
+    fn get_octave_notes_returns_correct_octave() {
+        let mut synth_engine = SynthEngine::new();
+        let mut keyboard_state = keyboard_matrix::KeyboardState::default();
+
+        synth_engine.update(&keyboard_state);
+
+        let (octave, octave_notes) = synth_engine.get_octave_notes();
+
+        assert_eq!(octave, 4);
+    }
+
+    #[test]
+    fn get_octave_notes_with_octave_changed_returns_correct_octave() {
+        let mut synth_engine = SynthEngine::new();
+        let mut keyboard_state = keyboard_matrix::KeyboardState::default();
+
+        synth_engine.set_octave(2);
+
+        synth_engine.update(&keyboard_state);
+
+        let (octave, octave_notes) = synth_engine.get_octave_notes();
+
+        assert_eq!(octave, 2);
+    }
+
+    #[test]
+    fn get_octave_notes_with_no_keys_pressed_returns_no_notes() {
+        let mut synth_engine = SynthEngine::new();
+        let mut keyboard_state = keyboard_matrix::KeyboardState::default();
+
+        synth_engine.update(&keyboard_state);
+
+        let (octave, octave_notes) = synth_engine.get_octave_notes();
+
+        for note in octave_notes.iter() {
+            assert_eq!(*note, 0);
+        }
+    }
+
+    #[test]
+    fn get_octave_notes_with_keys_pressed_returns_correct_notes() {
+        let mut synth_engine = SynthEngine::new();
+        let mut keyboard_state = keyboard_matrix::KeyboardState::default();
+
+        keyboard_state.state[13] = true;
+
+        synth_engine.update(&keyboard_state);
+
+        let (octave, octave_notes) = synth_engine.get_octave_notes();
+
+        assert_eq!(octave, 4);
+
+        for (index, note) in octave_notes.iter().enumerate() {
+            if index == 0 {
+                assert_eq!(*note, 60)
+            } else {
+                assert_eq!(*note, 0);
+            }
+        }
+    }
+
 }
