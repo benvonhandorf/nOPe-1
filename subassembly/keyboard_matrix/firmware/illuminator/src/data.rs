@@ -40,33 +40,6 @@ pub fn max(a: u8, b: u8) -> u8 {
     }
 }
 
-// pub fn decay(&mut self) {
-//     let mut modified = false;
-
-//     for i in 0..21 {
-//         let mut pixel = &mut self.led_data[i];
-
-//         if pixel.b > 0 {
-//             pixel.b -= min(3, pixel.b);
-//             modified = true;
-//             // continue;
-//         }
-
-//         if pixel.g > 0 {
-//             pixel.g -= min(2, pixel.g);
-//             modified = true;
-//             // continue;
-//         }
-
-//         if pixel.r > 0 {
-//             pixel.r -= 1;
-//             modified = true;
-//         }
-//     }
-
-//     self.needs_refresh = self.needs_refresh || modified;
-// }
-
 pub trait PixelAnimation {
     fn compute(data: u32, duration: u32) -> RGB8;
 }

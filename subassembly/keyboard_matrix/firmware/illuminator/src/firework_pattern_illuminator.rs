@@ -42,12 +42,26 @@ impl Illuminator for FireworkPatternIlluminator {
         if self.idle_time_ms > 1000 {
             self.idle_time_ms = 0;
 
-            let key = (self.total_time_ms / 7) % 21;
-            self.keys[key as usize] = Hsv {
-                hue: self.total_time_ms as u8,
+            let key_index = (self.total_time_ms / 7) % 21;
+            let hue = self.total_time_ms as u8;
+            self.keys[key_index as usize] = Hsv {
+                hue: hue,
                 sat: 30,
                 val: 255,
             };
+
+            adjacency_recursion(
+                255,
+                key_index as u8,
+                0,
+                &mut |index, recurse_level| {
+                    self.keys[index as usize] = Hsv {
+                        hue: hue,
+                        sat: 50,
+                        val: 127,
+                    };
+                },
+            );
         }
 
         for hsv in self.keys.iter_mut() {
