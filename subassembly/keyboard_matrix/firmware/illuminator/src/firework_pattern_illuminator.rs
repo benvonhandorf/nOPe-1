@@ -69,7 +69,7 @@ impl Illuminator for FireworkPatternIlluminator {
                 hsv.val -= 1;
             }
             if hsv.sat < 255 {
-                hsv.sat += 1;
+                hsv.sat += 2;
             }
         }
     }

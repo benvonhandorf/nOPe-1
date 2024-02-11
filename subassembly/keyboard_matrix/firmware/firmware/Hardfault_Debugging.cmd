@@ -7,7 +7,10 @@ define hook_continue
 end
 
 define unwind_stack
-
+    set $exec_frame = ($lr * 0x4) ? $psp : $msp
+    set $stacked_xpsr = ((uint32_t *)$exec_frame)[7]
+    set $exec_frame_len = 32 + (($stacked_xpsr ? 0x4 : 0x0) + (($lr & 0x10) ? 0 : 72))
+    
 end
 
 # Breakpoint on the Hardfault Handler
